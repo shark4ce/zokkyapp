@@ -1,6 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:zokkyapp/services/auth.dart';
+import 'package:zokkyapp/screens/home/create_post.dart';
+import 'package:zokkyapp/screens/home/feed.dart';
+
+enum AppState {
+  feed,
+  createPost
+}
 
 class Home extends StatefulWidget {
   @override
@@ -9,29 +14,24 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  final AuthService _auth = AuthService();
+  AppState state = AppState.feed;
+
+  void toggleState(AppState newState) {
+    setState(() => state = newState);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.brown[50],
-      appBar: AppBar(
-        title: Text('Zokky'),
-        backgroundColor: Colors.brown[400],
-        elevation: 0.0,
-        actions: <Widget>[
-          FlatButton.icon(
-            label: Text('LogOut'),
-            icon: Icon(Icons.person),
-            onPressed: () async {
-              await _auth.signOut();
-            },
-          )
-        ],
-      ),
-      body: Image.asset(
-          'assets/images/Homepage-Design.jpg'
-      ),
-    );
+    switch(state) {
+      case AppState.feed:
+        return Feed(toggleState: toggleState);
+        break;
+      case AppState.createPost:
+        return CreatePost(toggleState: toggleState);
+        break;
+      default:
+        return Feed(toggleState: toggleState);
+        break;
+    }
   }
 }
