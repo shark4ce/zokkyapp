@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "624012222295",
+    "firebase_url": "https://zokky-app-35ae6.firebaseio.com",
+    "project_id": "zokky-app-35ae6",
+    "storage_bucket": "zokky-app-35ae6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624012222295:android:cd778165e3e1382752a812",
+        "android_client_info": {
+          "package_name": "zokkyteam.zokkyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "624012222295-d4uh2dq14sjvmb8js513ppdfsnnn2643.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAvuXN0826koZVDqQaNDN86xojeSlmrxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "624012222295-d4uh2dq14sjvmb8js513ppdfsnnn2643.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
