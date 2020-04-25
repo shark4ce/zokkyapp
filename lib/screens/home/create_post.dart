@@ -1,7 +1,16 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:zokkyapp/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:zokkyapp/services/auth.dart';
+import 'package:zokkyapp/shared/constants.dart';
+import 'package:zokkyapp/shared/loading.dart';
 import 'package:zokkyapp/screens/home/home.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
+import 'package:zokkyapp/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreatePost extends StatefulWidget {
   final Function toggleState;
@@ -13,16 +22,39 @@ class CreatePost extends StatefulWidget {
 
 class _CreatePostState extends State<CreatePost> {
 
-  final AuthService _auth = AuthService();
+  final _formKey = GlobalKey<FormState>();
+  bool loading = false;
+
+  //text field state
+  String title = '';
+  String description = '';
+  File image;
+  String error = '';
+  DatabaseService db;
+  FirebaseStorage _storage = FirebaseStorage.instance;
+
+
+  Future post(String title, String description, File file) async {
+    String fileName = basename(image.path);
+    String fileExtension = fileName.substring(fileName.indexOf('.'));
+    DocumentReference ref = await db.createNewPost(title, description, fileExtension);
+    String newName = ref.documentID + fileExtension;
+    StorageReference imagesReference = _storage.ref().child("images/$newName");
+    StorageUploadTask uploadTask = imagesReference.putFile(image);
+    return await uploadTask.onComplete;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepOrangeAccent[50],
+    final user = Provider.of<User>(context);
+    db = new DatabaseService(uid: user.uid);
+
+    return loading ? Loading() : Scaffold(
+      backgroundColor: Colors.blue[100],
       appBar: AppBar(
-        title: Text('Zokky'),
-        backgroundColor: Colors.deepOrangeAccent[400],
+        backgroundColor: Colors.blue[400],
         elevation: 0.0,
+        title: Text('Create Post'),
         actions: <Widget>[
           FlatButton.icon(
               icon: Icon(Icons.arrow_back),
@@ -30,18 +62,92 @@ class _CreatePostState extends State<CreatePost> {
               onPressed: () {
                 widget.toggleState(AppState.feed);
               }
-          ),
-          FlatButton.icon(
-            label: Text('LogOut'),
-            icon: Icon(Icons.person),
-            onPressed: () async {
-              await _auth.signOut();
-            },
           )
         ],
       ),
-      body: Image.asset(
-          'assets/images/Homepage-Design.jpg'
+      body: Container(
+          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+          child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(height: 20.0),
+                    RaisedButton(
+                        color: Colors.pink[400],
+                        child: Text(
+                          'Upload image',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          image = await ImagePicker.pickImage(
+                              source: ImageSource.gallery);
+                          if (image == null) {
+                            setState(() {
+                              error = 'Failed to upload image';
+                            });
+                          }
+                        }
+                    ),
+                    //title
+                    SizedBox(height: 20.0),
+                    TextFormField(
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Title'),
+                        validator: (val) =>
+                        val.isEmpty
+                            ? 'You must enter a title'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => title = val);
+                        }
+                    ),
+                    //description
+                    SizedBox(height: 20.0),
+                    TextFormField(
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Description'),
+                        validator: (val) =>
+                        val.length <= 0
+                            ? 'You must enter a description'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => description = val);
+                        }
+                    ),
+                    //Sign In Button
+                    SizedBox(height: 20.0),
+                    RaisedButton(
+                        color: Colors.pink[400],
+                        child: Text(
+                          'Post',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            setState(() => loading = true);
+                            dynamic result = await post(
+                                title, description, image);
+                            if (result == null) {
+                              setState(() {
+                                error = 'Upload failed';
+                                loading = false;
+                              });
+                            } else {
+                              widget.toggleState(AppState.feed);
+                            }
+                          }
+                        }
+                    ),
+                    SizedBox(height: 12.0),
+                    Text(
+                      error,
+                      style: TextStyle(color: Colors.red, fontSize: 15.0),
+                    ),
+                  ],
+                ),
+              )
+          )
       ),
     );
   }
