@@ -3,14 +3,14 @@ class Post {
   String title;
   String description;
   String uid;
-  String imageName;
+  String fileExtension;
 
-  Post(pid, title, description, uid, imageName) {
+  Post(pid, title, description, uid, fileExtension) {
     this.pid = pid;
     this.title = title;
     this.description = description;
     this.uid = uid;
-    this.imageName = imageName;
+    this.fileExtension = fileExtension;
 
   }
 }
