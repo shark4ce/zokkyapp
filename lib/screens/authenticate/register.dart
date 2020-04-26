@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:zokkyapp/screens/authenticate/authenticate.dart';
 import 'package:zokkyapp/services/auth.dart';
 import 'package:zokkyapp/shared/constants.dart';
 import 'package:zokkyapp/shared/loading.dart';
@@ -38,7 +40,7 @@ class _RegisterState extends State<Register> {
               icon: Icon(Icons.person),
               label: Text('Sign In'),
               onPressed: () {
-                widget.toggleView();
+                widget.toggleView(ViewState.SignInState);
               }
           )
         ],
@@ -80,11 +82,34 @@ class _RegisterState extends State<Register> {
                       if (_formKey.currentState.validate()) {
                         setState(() => loading = true);
                         dynamic result = await _auth.registerWithEmailAndPassword(email, password);
+
                         if (result == null) {
                           setState(() {
                             error = 'Please try again with valid credentials!';
                             loading = false;
                           });
+                        }else if(result == "Verify Email"){
+                          await showDialog(
+                            context:context,
+                            builder: (BuildContext context){
+                              return AlertDialog(
+                                title: Text('Verify email'),
+                                content: Text('Account created!\r\nPlease verify your email and Sign In!'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      setState(() {
+                                        widget.toggleView(ViewState.SignInState);
+                                        loading = false;
+                                      });
+                                      Navigator.of(context).pop();
+                                    }
+                                  )
+                                ],
+                              );
+                            },
+                          );
                         }
                       }
                     }
