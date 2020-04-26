@@ -7,20 +7,24 @@ class Authenticate extends StatefulWidget {
   _AuthenticateState createState() => _AuthenticateState();
 }
 
+enum ViewState{
+  SignInState,
+  RegisterState,
+}
 class _AuthenticateState extends State<Authenticate> {
 
-  bool showSignIn = true;
+  ViewState viewState = ViewState.SignInState;
 
-  void toggleView() {
-    setState(() => showSignIn = ! showSignIn);
+  void toggleView(ViewState viewStateVar) {
+    setState(() => viewState = viewStateVar);
   }
 
   @override
   Widget build(BuildContext context) {
 
-    if (showSignIn) {
+    if (viewState == ViewState.SignInState) {
       return SignIn(toggleView: toggleView);
-    } else {
+    } else if (viewState == ViewState.RegisterState){
       return Register (toggleView: toggleView);
     }
   }

@@ -3,8 +3,8 @@ import 'package:zokkyapp/screens/authenticate/authenticate.dart';
 import 'package:zokkyapp/services/auth.dart';
 import 'package:zokkyapp/shared/constants.dart';
 import 'package:zokkyapp/shared/loading.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:email_validator/email_validator.dart';
 
 
 class SignIn extends StatefulWidget {
@@ -41,7 +41,7 @@ class _SignInState extends State<SignIn> {
             icon: Icon(Icons.person),
             label: Text('Register'),
             onPressed: () {
-              widget.toggleView();
+              widget.toggleView(ViewState.RegisterState);
             }
           )
         ],
@@ -89,6 +89,31 @@ class _SignInState extends State<SignIn> {
                           error = 'Wrong email or password!';
                           loading = false;
                         });
+                      }else if(result == "Verify Email"){
+                        await showDialog(
+                          context:context,
+                          builder: (BuildContext context){
+                            return AlertDialog(
+                              title: Text('Email is not verified'),
+                              content: Text('Please, firstly verify your email!'),
+                              actions: <Widget>[
+                                FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                      Navigator.of(context).pop();
+                                    }
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      }else{
+                        setState(() {
+                          loading = false;
+                        });
                       }
                     }
                   }
@@ -102,6 +127,19 @@ class _SignInState extends State<SignIn> {
                     if (result == null) {
                       setState(() {
                         error = 'Sign In with Google failed!';
+                        loading = false;
+                      });
+                    }
+                  },
+                ),
+                SizedBox(height: 15.0),
+                FacebookSignInButton(
+                  onPressed: () async {
+                    setState(() => loading = true);
+                    dynamic result = await _auth.signInWithFacebook();
+                    if (result == null) {
+                      setState(() {
+                        error = 'Sign In with Facebook failed!';
                         loading = false;
                       });
                     }
