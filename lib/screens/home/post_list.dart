@@ -18,12 +18,10 @@ class _PostListState extends State<PostList> {
   }
 
   void add(DocumentSnapshot snap) {
-    print('Hello');
     imagePaths.add(new Post(snap.documentID, snap.data['title'], snap.data['description'], snap.data['uid'], snap.data['fileExtension']));
   }
 
   void loadImages() {
-    print('Hellooo');
     Firestore.instance
         .collection("posts")
         .snapshots()

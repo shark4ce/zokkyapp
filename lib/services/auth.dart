@@ -7,7 +7,8 @@ import 'package:zokkyapp/models/user.dart';
 enum LoginType {
   Google,
   Facebook,
-  Email
+  Email,
+  EmailR
 }
 class AuthService {
 
@@ -23,8 +24,9 @@ class AuthService {
 
     if(user == null) {
       return null;
-    }else if(loginType == LoginType.Email && !user.isEmailVerified){
-      user.sendEmailVerification();
+    }else if((loginType == LoginType.Email || loginType == LoginType.EmailR) && !user.isEmailVerified){
+      if (loginType == LoginType.EmailR)
+        user.sendEmailVerification();
       _auth.signOut();
       return null;
     }else{
@@ -99,7 +101,7 @@ class AuthService {
   //register with email & password
   Future registerWithEmailAndPassword(String email, String password) async {
     try {
-      loginType = LoginType.Email;
+      loginType = LoginType.EmailR;
       AuthResult result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       FirebaseUser user = result.user;
       user.sendEmailVerification();

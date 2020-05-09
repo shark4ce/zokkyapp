@@ -23,6 +23,7 @@ class CreatePost extends StatefulWidget {
 class _CreatePostState extends State<CreatePost> {
 
   final _formKey = GlobalKey<FormState>();
+  static bool fileIsSelected = false;
   bool loading = false;
 
   //text field state
@@ -60,6 +61,7 @@ class _CreatePostState extends State<CreatePost> {
               icon: Icon(Icons.arrow_back),
               label: Text('Back'),
               onPressed: () {
+                fileIsSelected = false;
                 widget.toggleState(AppState.feed);
               }
           )
@@ -84,7 +86,32 @@ class _CreatePostState extends State<CreatePost> {
                               source: ImageSource.gallery);
                           if (image == null) {
                             setState(() {
-                              error = 'Failed to upload image';
+                              loading = true;
+                            });
+                            await showDialog(
+                              context:context,
+                              builder: (BuildContext context){
+                                return AlertDialog(
+                                  title: Text('Error'),
+                                  content: Text('Please, upload an image!'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          setState(() {
+                                            loading = false;
+                                          });
+                                          Navigator.of(context).pop();
+                                        }
+                                    )
+                                  ],
+                                );
+                              },
+                            );
+                          }else{
+                            setState(() {
+                              fileIsSelected = true;
+                              error = 'Image uploaded';
                             });
                           }
                         }
@@ -124,7 +151,7 @@ class _CreatePostState extends State<CreatePost> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState.validate() && fileIsSelected) {
                             setState(() => loading = true);
                             dynamic result = await post(
                                 title, description, image);
@@ -136,6 +163,33 @@ class _CreatePostState extends State<CreatePost> {
                             } else {
                               widget.toggleState(AppState.feed);
                             }
+                          }else {
+                            String error;
+                            if (fileIsSelected) {
+                              error = 'Please, fill in the fields!';
+                            }else {
+                              error = 'Please, upload an image!';
+                            }
+                            await showDialog(
+                              context:context,
+                              builder: (BuildContext context){
+                                return AlertDialog(
+                                  title: Text('Error'),
+                                  content: Text(error),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          setState(() {
+                                            loading = false;
+                                          });
+                                          Navigator.of(context).pop();
+                                        }
+                                    )
+                                  ],
+                                );
+                              },
+                            );
                           }
                         }
                     ),
