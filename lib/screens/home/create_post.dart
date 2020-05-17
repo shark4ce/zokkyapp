@@ -48,7 +48,7 @@ class _CreatePostState extends State<CreatePost> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-    db = new DatabaseService(uid: user.uid);
+    db = new DatabaseService(user: user);
 
     return loading ? Loading() : Scaffold(
       backgroundColor: Colors.blue[100],

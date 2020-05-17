@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:zokkyapp/models/user.dart';
 import 'package:zokkyapp/screens/home/post_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:zokkyapp/models/post.dart';
+
+import 'data_holder.dart';
 
 class PostList extends StatefulWidget {
   @override
@@ -17,15 +21,19 @@ class _PostListState extends State<PostList> {
     loadImages();
   }
 
-  void add(DocumentSnapshot snap) {
-    imagePaths.add(new Post(snap.documentID, snap.data['title'], snap.data['description'], snap.data['uid'], snap.data['fileExtension']));
-  }
 
   void loadImages() {
     Firestore.instance
         .collection("posts")
         .snapshots()
         .listen( (snapshot) {
+          if(imagePaths.length > snapshot.documents.length){
+            setState(() {
+              imagePaths.clear();
+              requestedIndexes.clear();
+              imageData.clear();
+            });
+          }
           int count = imagePaths.length;
           for(int i = 0; i < snapshot.documents.length; i++) {
             DocumentSnapshot f = snapshot.documents[i];
@@ -38,10 +46,14 @@ class _PostListState extends State<PostList> {
                 }
               }
               if(j == imagePaths.length) {
-                imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
+                setState((){
+                  imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
+                });
               }
             } else {
-              imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
+              setState((){
+                imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
+              });
             }
 
           }
@@ -51,12 +63,13 @@ class _PostListState extends State<PostList> {
   @override
   Widget build(BuildContext context) {
 
+    final user = Provider.of<User>(context);
+
     return ListView.builder(
       padding: EdgeInsets.fromLTRB(0.0,0.0,0.0,0.0),
       itemBuilder: (context, index) {
-        print(imagePaths.length);
         if(index < imagePaths.length) {
-          return new PostTile(post:imagePaths[index],index:index);
+          return new PostTile(post:imagePaths[index],index:index, user: user,);
         } else{
           return null;
         }

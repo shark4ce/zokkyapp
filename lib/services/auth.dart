@@ -30,7 +30,7 @@ class AuthService {
       _auth.signOut();
       return null;
     }else{
-      return User(user.uid);
+      return User(user.uid, user.email);
     }
   }
 
