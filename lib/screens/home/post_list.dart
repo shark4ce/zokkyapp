@@ -5,7 +5,7 @@ import 'package:zokkyapp/screens/home/post_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:zokkyapp/models/post.dart';
 
-import 'data_holder.dart';
+
 
 class PostList extends StatefulWidget {
   @override
@@ -22,42 +22,34 @@ class _PostListState extends State<PostList> {
   }
 
 
-  void loadImages() {
-    Firestore.instance
-        .collection("posts")
-        .snapshots()
-        .listen( (snapshot) {
-          if(imagePaths.length > snapshot.documents.length){
+  void loadImages() async{
+
+    QuerySnapshot q = await Firestore.instance
+        .collection("posts").getDocuments();
+
+          print("CC");
+
+          setState(() {
+            imagePaths.clear();
+          });
+
+          List<Post> buffer = new List<Post>();
+          for(int i = 0; i < q.documents.length; i++) {
+              DocumentSnapshot f = q.documents[i];
+              Timestamp t = f.data['timestamp'];
+              Post p = new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension'], t.toDate(), f.data['likes']);
+              buffer.add(p);
+              print("BUFF:" + buffer[i].likes.toString());
+            }
+          buffer.sort();
+
+          for(int i = 0; i < buffer.length; i++) {
             setState(() {
-              imagePaths.clear();
-              requestedIndexes.clear();
-              imageData.clear();
+              print("BUFF2:" + buffer[i].likes.toString());
+              imagePaths.add(buffer[i]);
             });
           }
-          int count = imagePaths.length;
-          for(int i = 0; i < snapshot.documents.length; i++) {
-            DocumentSnapshot f = snapshot.documents[i];
-            if(count > 0) {
-              int j;
-              for(j = 0; j < imagePaths.length; j++) {
-                if(f.documentID == imagePaths[j].pid) {
-                  count--;
-                  break;
-                }
-              }
-              if(j == imagePaths.length) {
-                setState((){
-                  imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
-                });
-              }
-            } else {
-              setState((){
-                imagePaths.add(new Post(f.documentID, f.data['title'], f.data['description'], f.data['uid'], f.data['fileExtension']));
-              });
-            }
 
-          }
-    });
   }
 
   @override
@@ -69,7 +61,7 @@ class _PostListState extends State<PostList> {
       padding: EdgeInsets.fromLTRB(0.0,0.0,0.0,0.0),
       itemBuilder: (context, index) {
         if(index < imagePaths.length) {
-          return new PostTile(post:imagePaths[index],index:index, user: user,);
+          return new PostTile(post:imagePaths[index],index:index, user: user, onRefresh: (){ loadImages();},);
         } else{
           return null;
         }

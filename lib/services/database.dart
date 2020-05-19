@@ -4,32 +4,42 @@ import 'package:zokkyapp/models/user.dart';
 class DatabaseService {
 
   final User user;
-  DatabaseService ({ this.user });
 
-  final CollectionReference postCollection = Firestore.instance.collection('posts');
-  final CollectionReference commentCollection = Firestore.instance.collection('comments');
-  final CollectionReference likesCollection = Firestore.instance.collection('likes');
+  DatabaseService({ this.user });
+
+  final CollectionReference postCollection = Firestore.instance.collection(
+      'posts');
+  final CollectionReference commentCollection = Firestore.instance.collection(
+      'comments');
+  final CollectionReference likesCollection = Firestore.instance.collection(
+      'likes');
 
 
-  Future createNewPost(String title, String description, String fileExtension) async {
+  Future createNewPost(String title, String description,
+      String fileExtension) async {
     DocumentReference ref = await postCollection
         .add({
       'title': title,
       'description': description,
       'uid': user.uid,
-      'fileExtension': fileExtension
+      'fileExtension': fileExtension,
+      'timestamp': new DateTime.now(),
+      'likes': 0
     });
     print(ref.documentID);
     return ref;
   }
 
-  Future modifyPost(String postId, String title, String description, String fileExtension) async {
+  Future modifyPost(String postId, String title, String description,
+      String fileExtension) async {
     return await postCollection.document(postId)
         .setData({
       'title': title,
       'description': description,
       'uid': user.uid,
-      'fileExtension': fileExtension
+      'fileExtension': fileExtension,
+      'timestamp': new DateTime.now(),
+      'likes': 0
     });
   }
 
@@ -38,9 +48,10 @@ class DatabaseService {
         .add({
       'pid': pid,
       'uid': user.uid,
-      'email':user.email,
+      'email': user.email,
       'comment': comment
     });
+
     return ref;
   }
 
@@ -50,6 +61,16 @@ class DatabaseService {
       'pid': pid,
       'uid': user.uid,
     });
+    await postCollection.document(pid).updateData({
+      'likes': FieldValue.increment(1)
+    });
     return ref;
+  }
+
+  Future removeLike(String pid) async {
+    await postCollection.document(pid).updateData({
+      'likes': FieldValue.increment(-1)
+    });
+
   }
 }

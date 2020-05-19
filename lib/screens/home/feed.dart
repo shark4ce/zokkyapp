@@ -19,22 +19,22 @@ class _FeedState extends State<Feed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue[50],
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text('Zokky'),
-        backgroundColor: Colors.blue[400],
+        backgroundColor: Colors.grey[900],
         elevation: 0.0,
         actions: <Widget>[
           FlatButton.icon(
-              icon: Icon(Icons.arrow_upward),
-              label: Text('CreatePost'),
+              icon: Icon(Icons.arrow_upward, color: Colors.white,),
+              label: Text('CreatePost', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 widget.toggleState(AppState.createPost);
               }
           ),
           FlatButton.icon(
-            label: Text('LogOut'),
-            icon: Icon(Icons.person),
+            label: Text('LogOut', style: TextStyle(color: Colors.white)),
+            icon: Icon(Icons.person, color: Colors.white,),
             onPressed: () async {
               await _auth.signOut();
             },

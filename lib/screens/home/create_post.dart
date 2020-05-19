@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:zokkyapp/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zokkyapp/services/auth.dart';
 import 'package:zokkyapp/shared/constants.dart';
 import 'package:zokkyapp/shared/loading.dart';
 import 'package:zokkyapp/screens/home/home.dart';
@@ -14,7 +13,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreatePost extends StatefulWidget {
   final Function toggleState;
-  CreatePost({this.toggleState});
+  final VoidCallback onRefresh;
+  CreatePost({this.toggleState, this.onRefresh});
 
   @override
   _CreatePostState createState() => _CreatePostState();
@@ -51,15 +51,15 @@ class _CreatePostState extends State<CreatePost> {
     db = new DatabaseService(user: user);
 
     return loading ? Loading() : Scaffold(
-      backgroundColor: Colors.blue[100],
+      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blue[400],
+        backgroundColor: Colors.grey[900],
         elevation: 0.0,
         title: Text('Create Post'),
         actions: <Widget>[
           FlatButton.icon(
-              icon: Icon(Icons.arrow_back),
-              label: Text('Back'),
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              label: Text('Back', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 fileIsSelected = false;
                 widget.toggleState(AppState.feed);
@@ -76,7 +76,7 @@ class _CreatePostState extends State<CreatePost> {
                   children: <Widget>[
                     SizedBox(height: 20.0),
                     RaisedButton(
-                        color: Colors.pink[400],
+                        color: Colors.grey[900],
                         child: Text(
                           'Upload image',
                           style: TextStyle(color: Colors.white),
@@ -145,7 +145,7 @@ class _CreatePostState extends State<CreatePost> {
                     //Sign In Button
                     SizedBox(height: 20.0),
                     RaisedButton(
-                        color: Colors.pink[400],
+                        color: Colors.grey[900],
                         child: Text(
                           'Post',
                           style: TextStyle(color: Colors.white),

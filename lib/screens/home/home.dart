@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
         return Feed(toggleState: toggleState);
         break;
       case AppState.createPost:
-        return CreatePost(toggleState: toggleState);
+        return CreatePost(toggleState: toggleState,);
         break;
       default:
         return Feed(toggleState: toggleState);
